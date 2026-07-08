@@ -6,10 +6,11 @@
  * Pools SoA + spatial hash para hordas; élites doradas con más vida.
  */
 import { mat4 } from 'wgpu-matrix';
-import { ARENA_R, MAX_ENEMIES, MAX_SKINNED } from '../core/constants';
+import { ARENA_R, MAX_ENEMIES, MAX_SKINNED, MAX_TRAILS } from '../core/constants';
 import { angleDelta, clamp, clamp01, dampAngle, makeRng } from '../core/mathx';
 import { CELL } from '../gfx/atlas';
 import { DECAL } from '../gfx/decalsPipeline';
+import { sampleBoneWorld } from '../gfx/animBake';
 import { writeInstance } from '../gfx/staticPipeline';
 import { writeAnimState } from '../gfx/skinnedPipeline';
 import type { Gfx } from '../gfx/gpu';
@@ -85,6 +86,35 @@ export class Enemies {
 
   private m = new Float32Array(16);
   private scratch = { x: 0, z: 0 };
+
+  // trails de arma para enemigos atacando: slots 1..MAX_TRAILS-1 (0 = jugador)
+  private trailOwner = new Int32Array(MAX_TRAILS).fill(-1);
+  private boneM = new Float32Array(16);
+  private handM = new Float32Array(16);
+  private foreM = new Float32Array(16);
+
+  /** libera el slot de trail de un enemigo (al terminar o morir) */
+  freeTrail(i: number): void {
+    for (let s = 1; s < MAX_TRAILS; s++) {
+      if (this.trailOwner[s] === i) {
+        this.trailOwner[s] = -1;
+        this.renderer.trails.trails[s].clear();
+      }
+    }
+  }
+
+  private trailSlotFor(i: number): number {
+    for (let s = 1; s < MAX_TRAILS; s++) {
+      if (this.trailOwner[s] === i) return s;
+    }
+    for (let s = 1; s < MAX_TRAILS; s++) {
+      if (this.trailOwner[s] < 0) {
+        this.trailOwner[s] = i;
+        return s;
+      }
+    }
+    return -1;
+  }
 
   constructor(gfx: Gfx, renderer: Renderer, vfx: Vfx, world: World, player: PlayerRef) {
     this.gfx = gfx;
@@ -165,6 +195,7 @@ export class Enemies {
     const def = CHARACTERS[this.kind[i]];
     this.state[i] = DYING;
     this.stateT[i] = 0;
+    this.freeTrail(i);
     this.killCount++;
     const col: [number, number, number] = this.elite[i] === 1
       ? [1.0, 0.8, 0.2] : def.weapon.trail;
@@ -335,13 +366,14 @@ export class Enemies {
           break;
         }
         case ATTACK: {
-          const T = def.weapon.attackTime;
-          // embestida corta al inicio del golpe
-          if (this.stateT[i] < T * 0.35) {
-            this.velX[i] = this.aimX[i] * this.sSpeed[i] * 2.4;
-            this.velZ[i] = this.aimZ[i] * this.sSpeed[i] * 2.4;
+          const asset = this.charAssets[this.kind[i]]!;
+          const T = def.weapon.attackTime * 1.35; // swing algo más lento: se lee mejor
+          // paso corto hacia delante (sin embestida: el golpe lo da el arma)
+          if (this.stateT[i] < T * 0.2) {
+            this.velX[i] = this.aimX[i] * this.sSpeed[i] * 1.15;
+            this.velZ[i] = this.aimZ[i] * this.sSpeed[i] * 1.15;
           }
-          if (!this.attackDone[i] && this.stateT[i] > T * 0.15) {
+          if (!this.attackDone[i] && this.stateT[i] > T * asset.hitFrac) {
             this.attackDone[i] = 1;
             // arco del enemigo contra el jugador
             const ang = Math.atan2(this.aimZ[i], this.aimX[i]);
@@ -363,6 +395,7 @@ export class Enemies {
           if (this.stateT[i] > T) {
             this.state[i] = RECOVER;
             this.stateT[i] = 0;
+            this.freeTrail(i);
           }
           break;
         }
@@ -513,17 +546,43 @@ export class Enemies {
       let ct = 0;
       if (st === ATTACK || st === WINDUP) {
         clip = c.attack;
-        // ventana real del swing (detectada del clip): la anticipación se
-        // reproduce durante el WINDUP y el golpe cae al entrar en ATTACK
+        // WINDUP = pura anticipación (el clip ANTES de que arranque el swing);
+        // ATTACK = la ventana completa del swing a velocidad natural
         const w0 = asset.window[0];
         const w1 = asset.window[1];
-        const hitAbs = w0 + asset.hitFrac * (w1 - w0);
         if (st === WINDUP) {
           const k = clamp01(t / this.sWindup[i]);
-          ct = (w0 * 0.5 + k * (hitAbs * 0.94 - w0 * 0.5)) * durs.attack;
+          const pre = Math.max(0, w0 - 0.22);
+          ct = (pre + k * (w0 - pre)) * durs.attack;
+          squash = 1 + 0.1 * k; // se estira al armar el golpe
         } else {
-          const swingT = clamp01(t / def.weapon.attackTime);
-          ct = (hitAbs * 0.94 + swingT * (w1 - hitAbs * 0.94)) * durs.attack;
+          const swingT = clamp01(t / (def.weapon.attackTime * 1.35));
+          ct = (w0 + swingT * (w1 - w0)) * durs.attack;
+          // trail del arma durante el swing (igual que el jugador)
+          if (swingT > 0.04 && swingT < 0.96) {
+            const slot = this.trailSlotFor(i);
+            if (slot > 0) {
+              const w = def.weapon;
+              sampleBoneWorld(asset.baked, 'attack', ct, asset.baked.handJoint, this.boneM);
+              mat4.multiply(this.m, this.boneM, this.handM);
+              sampleBoneWorld(asset.baked, 'attack', ct, asset.baked.handParent, this.boneM);
+              mat4.multiply(this.m, this.boneM, this.foreM);
+              const bx = this.handM[12];
+              const by = this.handM[13];
+              const bz = this.handM[14];
+              let ddx = bx - this.foreM[12];
+              let ddy = by - this.foreM[13];
+              let ddz = bz - this.foreM[14];
+              const dl = Math.hypot(ddx, ddy, ddz) || 1;
+              ddx /= dl; ddy /= dl; ddz /= dl;
+              const tr = this.renderer.trails.trails[slot];
+              tr.setColor(w.trail[0], w.trail[1], w.trail[2], w.trailGlow * 0.8);
+              tr.push(
+                bx, Math.max(by, 0.15), bz,
+                bx + ddx * w.trailLen, Math.max(by + ddy * w.trailLen, 0.2), bz + ddz * w.trailLen,
+              );
+            }
+          }
         }
       } else if (st === DYING) {
         clip = c.dead;
