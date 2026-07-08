@@ -44,28 +44,59 @@ export function createGroundPipelines(gfx: Gfx, shading: Shading, groundMesh: Gp
     const r = std.length(p);
     const time = scene.$.camPosTime.w;
 
-    // --- terreno base ---
+    // --- terreno base (multicapa) ---
     const n1 = perlin2d.sample(p * 0.045);
     const n2 = perlin2d.sample(p * 0.22 + d.vec2f(37.7, 11.3));
     const n3 = perlin2d.sample(p * 1.1 + d.vec2f(91.1, 53.9));
-    const grassA = d.vec3f(0.16, 0.30, 0.14);
-    const grassB = d.vec3f(0.22, 0.36, 0.16);
+    const n4 = perlin2d.sample(p * 2.6 + d.vec2f(17.3, 71.9));   // detalle fino
+    const n5 = perlin2d.sample(p * 0.6 + d.vec2f(5.1, 133.7));   // parches medianos
+    const grassA = d.vec3f(0.15, 0.29, 0.13);
+    const grassB = d.vec3f(0.22, 0.37, 0.16);
+    const grassC = d.vec3f(0.27, 0.4, 0.14); // hierba seca amarillenta
     const dirt = d.vec3f(0.30, 0.24, 0.16);
     let albedo = std.mix(grassA, grassB, std.clamp(n1 * 1.4 + 0.5, 0, 1));
+    albedo = std.mix(albedo, grassC, std.smoothstep(0.25, 0.6, n5) * 0.5);
     const dirtMask = std.smoothstep(0.18, 0.5, n2) * 0.85;
     albedo = std.mix(albedo, dirt, dirtMask);
-    albedo = albedo * (0.92 + n3 * 0.13);
-    // motas oscuras
+    // briznas direccionales (anisotropía sutil de hierba)
+    const blades = perlin2d.sample(d.vec2f(p.x * 0.7 + p.y * 2.9, p.y * 0.5 - p.x * 2.4));
+    albedo = albedo * (0.94 + blades * 0.09 * (1 - dirtMask));
+    albedo = albedo * (0.93 + n3 * 0.12 + n4 * 0.06);
+    // motas oscuras (matas) y claras (calvas)
     albedo = albedo * (1 - std.smoothstep(0.62, 0.78, n3) * 0.25);
+    albedo = std.mix(albedo, albedo * 1.22, std.smoothstep(0.66, 0.8, n4) * (1 - dirtMask) * 0.5);
+
+    // flores dispersas en la hierba
+    const fNoise = perlin2d.sample(p * 3.4 + d.vec2f(211.7, 89.3));
+    const flower = std.smoothstep(0.66, 0.8, fNoise) * (1 - dirtMask) * (1 - std.smoothstep(0.3, 0.55, n2));
+    const fPick = std.fract(fNoise * 37.0);
+    let flowerCol = d.vec3f(0.95, 0.9, 0.55);
+    if (fPick > 0.66) {
+      flowerCol = d.vec3f(0.95, 0.55, 0.75);
+    } else if (fPick > 0.33) {
+      flowerCol = d.vec3f(0.85, 0.88, 0.95);
+    }
+    albedo = std.mix(albedo, flowerCol, flower * 0.85);
+
+    // piedrecitas en las zonas de tierra
+    const pebble = std.smoothstep(0.6, 0.75, perlin2d.sample(p * 4.2 + d.vec2f(57.1, 23.9))) * dirtMask;
+    albedo = std.mix(albedo, d.vec3f(0.42, 0.41, 0.4), pebble * 0.7);
+
+    // grietas orgánicas finas, solo dentro de los parches de tierra
+    const crackN = perlin2d.sample(p * 0.7 + d.vec2f(313.1, 7.7));
+    const crack = (1 - std.smoothstep(0.0, 0.035, std.abs(crackN))) * dirtMask;
+    albedo = albedo * (1 - crack * 0.22);
 
     // grid sutil estilo .io
     const cell = std.abs(std.fract(p / 4.0) - 0.5) * 2.0;
     const gridLine = 1 - std.smoothstep(0.0, 0.06, std.min(1 - cell.x, 1 - cell.y));
-    albedo = albedo * (1 - gridLine * 0.055);
+    albedo = albedo * (1 - gridLine * 0.05);
 
-    // círculos de arena desgastados
+    // círculos de arena desgastados, con musgo en el borde
     const wear = ringMask(r, 24, 6.0) * 0.3 + ringMask(r, 46, 8.0) * 0.22;
     albedo = std.mix(albedo, dirt * 0.82, wear * (0.4 + n2 * 0.3));
+    const moss = (ringMask(r, 27.5, 1.6) + ringMask(r, 42.5, 1.8)) * std.smoothstep(0.1, 0.5, n3);
+    albedo = std.mix(albedo, d.vec3f(0.14, 0.3, 0.1), moss * 0.4);
 
     let emissive = d.vec3f();
 

@@ -6,7 +6,7 @@ import { d } from 'typegpu';
 import { ARENA_R } from '../core/constants';
 import { Input } from '../core/input';
 import { clamp01 } from '../core/mathx';
-import { bakeCharacter } from '../gfx/animBake';
+import { analyzeSwing, bakeCharacter } from '../gfx/animBake';
 import { buildAtlas } from '../gfx/atlas';
 import { loadGlb } from '../gfx/glb';
 import { Gfx } from '../gfx/gpu';
@@ -122,7 +122,12 @@ export class Game {
       attack: bc['attack']?.duration ?? 1,
       dead: bc['dead']?.duration ?? 1,
     };
-    const asset: CharAsset = { def, type, baked, clips, durations, worldScale };
+    const swing = analyzeSwing(baked, 'attack');
+    const asset: CharAsset = {
+      def, type, baked, clips, durations, worldScale,
+      window: [swing.start, swing.end], hitFrac: swing.hitFrac,
+    };
+    console.log(`${def.slug}: swing [${swing.start.toFixed(2)}..${swing.end.toFixed(2)}] hit=${swing.hitFrac.toFixed(2)}`);
     this.chars.set(def.slug, asset);
     this.renderer.skinnedTypes.push(type);
     this.enemies.registerCharacter(idx, asset);

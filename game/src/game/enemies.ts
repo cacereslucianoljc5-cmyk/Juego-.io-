@@ -224,11 +224,20 @@ export class Enemies {
   }
 
   // ---------- director de oleadas ----------
+  // Arranque tranquilo que crece con el tiempo hasta un tope seguro:
+  //   t=0   → ~8 enemigos como máximo, 1 por oleada cada ~3 s
+  //   t=2m  → ~30 vivos, oleadas de 2
+  //   t=5m+ → tope de ~85 vivos, oleadas de 4 cada ~1.3 s
   private director(dt: number): void {
     this.elapsed += dt;
     this.spawnTimer -= dt;
-    if (this.spawnTimer > 0 || this.aliveCount >= MAX_ENEMIES - 20) return;
-    this.spawnTimer = Math.max(0.8, 1.8 - this.elapsed / 220);
+    if (this.spawnTimer > 0) return;
+    const aliveCap = Math.min(8 + this.elapsed * 0.26, 85);
+    if (this.aliveCount >= aliveCap) {
+      this.spawnTimer = 0.6;
+      return;
+    }
+    this.spawnTimer = Math.max(1.3, 3.0 - this.elapsed / 130);
 
     // candidatos: personajes cargados, distintos del jugador, sin saturar su tipo
     const candidates: number[] = [];
@@ -240,12 +249,12 @@ export class Enemies {
     }
     if (candidates.length === 0) return;
 
-    let toSpawn = Math.min(2 + Math.floor(this.elapsed / 25), 9);
-    while (toSpawn-- > 0 && this.aliveCount < MAX_ENEMIES - 20) {
+    let toSpawn = Math.min(1 + Math.floor(this.elapsed / 55), 4);
+    while (toSpawn-- > 0 && this.aliveCount < aliveCap) {
       const k = candidates[Math.floor(this.rng() * candidates.length)];
       if (this.perTypeCount[k] >= MAX_SKINNED - 4) continue;
       const pos = this.spawnPos();
-      const elite = this.elapsed > 70 && this.rng() < 0.09 ? 1 : 0;
+      const elite = this.elapsed > 90 && this.rng() < 0.08 ? 1 : 0;
       this.spawn(k, pos.x, pos.z, elite);
     }
   }
@@ -332,7 +341,7 @@ export class Enemies {
             this.velX[i] = this.aimX[i] * this.sSpeed[i] * 2.4;
             this.velZ[i] = this.aimZ[i] * this.sSpeed[i] * 2.4;
           }
-          if (!this.attackDone[i] && this.stateT[i] > T * def.weapon.hitFrac * 0.8) {
+          if (!this.attackDone[i] && this.stateT[i] > T * 0.15) {
             this.attackDone[i] = 1;
             // arco del enemigo contra el jugador
             const ang = Math.atan2(this.aimZ[i], this.aimX[i]);
@@ -504,14 +513,17 @@ export class Enemies {
       let ct = 0;
       if (st === ATTACK || st === WINDUP) {
         clip = c.attack;
-        const window = def.animWindow;
-        const wFrac = window[0] + (window[1] - window[0]) * 0.18;
+        // ventana real del swing (detectada del clip): la anticipación se
+        // reproduce durante el WINDUP y el golpe cae al entrar en ATTACK
+        const w0 = asset.window[0];
+        const w1 = asset.window[1];
+        const hitAbs = w0 + asset.hitFrac * (w1 - w0);
         if (st === WINDUP) {
-          // sube lentamente al inicio del swing (anticipación)
-          ct = (t / this.sWindup[i]) * wFrac * durs.attack;
+          const k = clamp01(t / this.sWindup[i]);
+          ct = (w0 * 0.5 + k * (hitAbs * 0.94 - w0 * 0.5)) * durs.attack;
         } else {
           const swingT = clamp01(t / def.weapon.attackTime);
-          ct = (wFrac + swingT * (window[1] - wFrac)) * durs.attack;
+          ct = (hitAbs * 0.94 + swingT * (w1 - hitAbs * 0.94)) * durs.attack;
         }
       } else if (st === DYING) {
         clip = c.dead;

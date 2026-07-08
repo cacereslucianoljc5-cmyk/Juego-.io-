@@ -171,42 +171,5 @@ export const ASSET_MANIFEST = {
       "tris": 15492,
       "height": 0.936
     }
-  },
-  "enemies": {
-    "Esqueleto": {
-      "tris": 22396,
-      "height": 32767,
-      "minY": -32767
-    },
-    "Barbaro": {
-      "tris": 20472,
-      "height": 32767,
-      "minY": -32767
-    },
-    "Arquero": {
-      "tris": 43432,
-      "height": 32767,
-      "minY": -32767
-    },
-    "Gigante": {
-      "tris": 28814,
-      "height": 32767,
-      "minY": -32767
-    },
-    "Pekka": {
-      "tris": 35334,
-      "height": 32767,
-      "minY": -32767
-    },
-    "MontaPuercos": {
-      "tris": 22314,
-      "height": 31691,
-      "minY": -31691
-    },
-    "MagoFuego": {
-      "tris": 29192,
-      "height": 32767,
-      "minY": -32767
-    }
   }
 } as const;
