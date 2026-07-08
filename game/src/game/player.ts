@@ -25,6 +25,10 @@ export interface CharAsset {
   clips: { idle: number; walk: number; run: number; attack: number; dead: number };
   durations: { idle: number; walk: number; run: number; attack: number; dead: number };
   worldScale: number;
+  /** ventana real del swing dentro del clip de ataque (fracciones 0..1), detectada
+   *  analizando la velocidad del hueso de la mano; hitFrac = momento del impacto */
+  window: [number, number];
+  hitFrac: number;
 }
 
 const MODEL_YAW = Math.PI; // corrección de orientación del rig de Meshy
@@ -273,8 +277,9 @@ export class Player {
       const T = w.attackTime;
       const prev = this.attackT;
       this.attackT += dt;
-      // impacto
-      if (!this.didHit && prev < T * w.hitFrac && this.attackT >= T * w.hitFrac) {
+      // impacto (momento real del swing, detectado del clip)
+      const hf = this.asset.hitFrac;
+      if (!this.didHit && prev < T * hf && this.attackT >= T * hf) {
         this.resolveHits(false, aimYaw);
       }
       // trail activo alrededor del golpe
@@ -501,7 +506,7 @@ export class Player {
     if (swingT <= 0.05 || swingT > 0.95) return;
     const asset = this.asset;
     const w = asset.def.weapon;
-    const window = asset.def.animWindow;
+    const window = asset.window;
     const clipT = (window[0] + swingT * (window[1] - window[0])) * asset.durations.attack;
     sampleBoneWorld(asset.baked, 'attack', clipT, asset.baked.handJoint, this.boneM);
     this.buildModelMatrix(this.m, 1);
@@ -551,7 +556,7 @@ export class Player {
     if (this.attackT >= 0 || this.heavyT >= 0) {
       this.setLoco(c.attack, 0.04);
       const w = asset.def.weapon;
-      const window = asset.def.animWindow;
+      const window = asset.window;
       let swingT: number;
       if (this.heavyT >= 0) {
         const windup = 0.42;

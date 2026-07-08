@@ -180,6 +180,55 @@ export function bakeCharacter(model: GlbModel): BakedCharacter {
   return { boneCount: J, frames, clips, binds, jointName, handJoint, handParent, rootJoint };
 }
 
+/**
+ * Analiza el clip de ataque y localiza el swing real del arma: el tramo
+ * donde la mano se mueve más rápido. Devuelve la ventana [start, end] y el
+ * momento del impacto (pico de velocidad) como fracciones 0..1 del clip.
+ * Así cada personaje reproduce exactamente su golpe, no la anticipación.
+ */
+export function analyzeSwing(baked: BakedCharacter, clipName: string): { start: number; end: number; hitFrac: number } {
+  const clip = baked.clips[clipName];
+  if (!clip || clip.count < 6) return { start: 0.15, end: 0.7, hitFrac: 0.5 };
+  const J = baked.boneCount;
+  const j = baked.handJoint;
+  const bind = baked.binds.subarray(j * 16, j * 16 + 16);
+  // posición de mundo de la mano por frame: (skinMat × bind) → traslación
+  const px = new Float32Array(clip.count);
+  const py = new Float32Array(clip.count);
+  const pz = new Float32Array(clip.count);
+  const m = new Float32Array(16);
+  for (let f = 0; f < clip.count; f++) {
+    const base = (clip.base + f) * J * 16 + j * 16;
+    mat4.multiply(baked.frames.subarray(base, base + 16), bind, m);
+    px[f] = m[12]; py[f] = m[13]; pz[f] = m[14];
+  }
+  const speed = new Float32Array(clip.count);
+  let peakF = 1;
+  for (let f = 1; f < clip.count; f++) {
+    speed[f] = Math.hypot(px[f] - px[f - 1], py[f] - py[f - 1], pz[f] - pz[f - 1]);
+    // ignora el arranque y el final del clip
+    if (f > clip.count * 0.12 && f < clip.count * 0.92 && speed[f] > speed[peakF]) peakF = f;
+  }
+  const threshold = speed[peakF] * 0.22;
+  let startF = peakF;
+  while (startF > 1 && speed[startF - 1] > threshold) startF--;
+  let endF = peakF;
+  while (endF < clip.count - 1 && speed[endF + 1] > threshold) endF++;
+  // padding y anchura mínima
+  startF = Math.max(0, startF - Math.ceil(clip.count * 0.06));
+  endF = Math.min(clip.count - 1, endF + Math.ceil(clip.count * 0.08));
+  const minW = clip.count * 0.22;
+  if (endF - startF < minW) {
+    const c = (startF + endF) / 2;
+    startF = Math.max(0, Math.round(c - minW / 2));
+    endF = Math.min(clip.count - 1, Math.round(c + minW / 2));
+  }
+  const start = startF / (clip.count - 1);
+  const end = endF / (clip.count - 1);
+  const hitFrac = Math.min(0.68, Math.max(0.32, (peakF - startF) / Math.max(endF - startF, 1)));
+  return { start, end, hitFrac };
+}
+
 const _m0 = new Float32Array(16);
 const _m1 = new Float32Array(16);
 

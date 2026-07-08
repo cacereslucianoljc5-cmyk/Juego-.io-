@@ -44,28 +44,69 @@ class Builder {
   }
 }
 
-/** Roca low-poly: icosaedro subdividido y deformado. */
+/**
+ * Roca low-poly creíble: icosfera subdividida (80 caras) con desplazamiento
+ * radial coherente por vértice, achatada y con la base hundida en el suelo.
+ */
 export function rockMesh(seed: number): MeshData {
   const rng = makeRng(seed);
-  const b = new Builder();
   const t = (1 + Math.sqrt(5)) / 2;
-  const pts: number[][] = [
+  let pts: number[][] = [
     [-1, t, 0], [1, t, 0], [-1, -t, 0], [1, -t, 0],
     [0, -1, t], [0, 1, t], [0, -1, -t], [0, 1, -t],
     [t, 0, -1], [t, 0, 1], [-t, 0, -1], [-t, 0, 1],
-  ];
-  const faces = [
+  ].map((p) => {
+    const l = Math.hypot(p[0], p[1], p[2]);
+    return [p[0] / l, p[1] / l, p[2] / l];
+  });
+  let faces: number[][] = [
     [0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11],
     [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8],
     [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9],
     [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1],
   ];
-  const deformed = pts.map((p) => {
+  // una subdivisión con deduplicación de puntos medios
+  const midCache = new Map<number, number>();
+  const midpoint = (a: number, b: number): number => {
+    const key = a < b ? a * 4096 + b : b * 4096 + a;
+    const hit = midCache.get(key);
+    if (hit !== undefined) return hit;
+    const p = [
+      (pts[a][0] + pts[b][0]) / 2,
+      (pts[a][1] + pts[b][1]) / 2,
+      (pts[a][2] + pts[b][2]) / 2,
+    ];
     const l = Math.hypot(p[0], p[1], p[2]);
-    const r = (0.75 + rng() * 0.5) / l;
-    return [p[0] * r, Math.abs(p[1] * r) * 0.75 + 0.08, p[2] * r * (0.85 + rng() * 0.3)];
+    pts.push([p[0] / l, p[1] / l, p[2] / l]);
+    midCache.set(key, pts.length - 1);
+    return pts.length - 1;
+  };
+  const next: number[][] = [];
+  for (const [a, bb, c] of faces) {
+    const ab = midpoint(a, bb);
+    const bc = midpoint(bb, c);
+    const ca = midpoint(c, a);
+    next.push([a, ab, ca], [bb, bc, ab], [c, ca, bc], [ab, bc, ca]);
+  }
+  faces = next;
+
+  // desplazamiento coherente por vértice (los triángulos comparten vértices)
+  const disp = pts.map(() => 0.78 + rng() * 0.44);
+  // dos "abolladuras" grandes para romper la silueta
+  for (let k = 0; k < 2; k++) {
+    const dir = [rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1];
+    const dl = Math.hypot(dir[0], dir[1], dir[2]) || 1;
+    for (let i = 0; i < pts.length; i++) {
+      const dot = (pts[i][0] * dir[0] + pts[i][1] * dir[1] + pts[i][2] * dir[2]) / dl;
+      if (dot > 0.55) disp[i] *= 0.82;
+    }
+  }
+  const b = new Builder();
+  const vi = pts.map((p, i) => {
+    const r = disp[i];
+    // achatada en Y y hundida: la base queda bajo el suelo
+    return b.vert(p[0] * r, p[1] * r * 0.62 + 0.28, p[2] * r * (0.9 + (i % 3) * 0.05), 0, 1, 0, 0.5, 0.5);
   });
-  const vi = deformed.map((p) => b.vert(p[0], p[1], p[2], 0, 1, 0, 0.5, 0.5));
   for (const f of faces) b.tri(vi[f[0]], vi[f[1]], vi[f[2]]);
   b.flatShade();
   return b.build();
