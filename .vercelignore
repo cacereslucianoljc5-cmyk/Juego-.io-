@@ -1,0 +1,9 @@
+models/
+source_images/
+.agents/
+.github/
+game/node_modules/
+game/dist/
+*.py
+summary.json
+REPORTE.md

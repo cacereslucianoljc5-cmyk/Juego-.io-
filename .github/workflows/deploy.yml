@@ -1,0 +1,43 @@
+name: Deploy juego a GitHub Pages
+
+# Publica la build de game/ en la rama gh-pages (mismo patrón que Juego123 /
+# Juego-clash-): al existir la rama, GitHub habilita Pages automáticamente.
+on:
+  push:
+    branches: [main, claude/io-game-webgpu-typegpu-g78r49]
+    paths: ['game/**', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: game/package-lock.json
+      - run: npm ci
+        working-directory: game
+      - run: npm run build
+        working-directory: game
+      - name: Publicar dist en la rama gh-pages
+        run: |
+          mv game/dist /tmp/pages-dist
+          git checkout --orphan gh-pages
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -r /tmp/pages-dist/* .
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy $GITHUB_SHA"
+          git push -f origin gh-pages

@@ -1,3 +1,11 @@
+# Juego .io — Arena WebGPU + assets 3D
+
+> 🎮 **El juego vive en [`game/`](game/)**: arena .io single-player de combate
+> cuerpo a cuerpo renderizada con WebGPU + TypeGPU. Elegís uno de los 14
+> personajes riggeados de este repo y los otros 13 te cazan en oleadas; los 3
+> sin rig son estatuas de la arena. Controles y detalles técnicos en
+> [game/README.md](game/README.md).
+
 # Assets 3D — Personajes con armas (Meshy AI)
 
 Modelos 3D generados a partir de las imágenes en `source_images/` usando la API

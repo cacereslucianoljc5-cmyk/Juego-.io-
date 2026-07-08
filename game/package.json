@@ -1,0 +1,30 @@
+{
+  "name": "arena-io",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "assets": "node tools/prepare-assets.mjs"
+  },
+  "dependencies": {
+    "@typegpu/noise": "^0.11.0",
+    "typegpu": "^0.11.9",
+    "wgpu-matrix": "^3.4.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/extensions": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1",
+    "@webgpu/types": "^0.1.64",
+    "meshoptimizer": "^1.2.0",
+    "playwright-core": "^1.61.1",
+    "sharp": "^0.35.3",
+    "typescript": "npm:tsover@~6.0.2",
+    "unplugin-typegpu": "^0.11.6",
+    "vite": "^7.3.0"
+  }
+}
