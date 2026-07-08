@@ -4,6 +4,7 @@
  * pesado · Espacio/Shift dash · 1-9/0 personaje · Tab/E/Q ciclar · rueda zoom.
  */
 import { Game } from './game/game';
+import { showCharacterMenu } from './game/menu';
 
 async function boot() {
   const canvas = document.getElementById('gfx') as HTMLCanvasElement;
@@ -14,6 +15,12 @@ async function boot() {
   const params = new URLSearchParams(location.search);
   const headless = params.has('headless');
   const game = await Game.create(canvas, headless);
+
+  if (headless && !params.has('menu')) {
+    await game.start(0);
+  } else {
+    showCharacterMenu((idx) => game.start(idx));
+  }
 
   const loop = (now: number) => {
     game.frame(now);
