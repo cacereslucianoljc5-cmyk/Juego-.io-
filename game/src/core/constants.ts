@@ -9,5 +9,5 @@ export const MAX_PARTICLES = 32768;
 export const MAX_EMIT_REQUESTS = 96;
 export const MAX_DECALS = 96;
 export const MAX_SPRITES = 320;  // quads de dígitos de daño
-export const MAX_TRAIL_SAMPLES = 22;
+export const MAX_TRAIL_SAMPLES = 32;
 export const MAX_TRAILS = 5;
