@@ -177,64 +177,30 @@ export const CHARACTERS: CharacterDef[] = [
   },
 ];
 
-// ---------- enemigos ----------
+// ---------- enemigos: los otros 13 personajes ----------
 
-export type EnemyBehavior = 'melee' | 'flanker' | 'charge' | 'nova' | 'slam' | 'boss';
-
-export interface EnemyDef {
-  slug: string;          // GLB en assets/enemies
-  name: string;
-  behavior: EnemyBehavior;
-  scale: number;         // altura objetivo (m)
-  radius: number;
+/** Stats de un personaje cuando actúa como enemigo (derivadas de su arma). */
+export interface EnemyStats {
   hp: number;
   speed: number;
   damage: number;
   attackRange: number;
-  windup: number;        // telegraph (s)
+  arc: number;
+  windup: number;
   recover: number;
-  cost: number;          // coste para el director de oleadas
-  unlockAt: number;      // segundos de partida
-  tint: [number, number, number];
-  bob: number;           // amplitud de la animación puppet
+  radius: number;
 }
 
-export const ENEMIES: EnemyDef[] = [
-  {
-    slug: 'Esqueleto', name: 'Esqueleto', behavior: 'melee', scale: 2.0, radius: 0.5,
-    hp: 30, speed: 5.6, damage: 8, attackRange: 1.7, windup: 0.45, recover: 0.5,
-    cost: 1, unlockAt: 0, tint: [1, 1, 1], bob: 1.2,
-  },
-  {
-    slug: 'Barbaro', name: 'Bárbaro', behavior: 'melee', scale: 2.25, radius: 0.62,
-    hp: 70, speed: 4.2, damage: 14, attackRange: 2.0, windup: 0.6, recover: 0.7,
-    cost: 2, unlockAt: 25, tint: [1, 1, 1], bob: 0.9,
-  },
-  {
-    slug: 'Arquero', name: 'Arquero', behavior: 'flanker', scale: 2.1, radius: 0.5,
-    hp: 45, speed: 6.8, damage: 10, attackRange: 2.2, windup: 0.35, recover: 0.45,
-    cost: 2, unlockAt: 60, tint: [1, 1, 1], bob: 1.4,
-  },
-  {
-    slug: 'MontaPuercos', name: 'Montapuercos', behavior: 'charge', scale: 2.4, radius: 0.7,
-    hp: 120, speed: 5.2, damage: 18, attackRange: 2.2, windup: 0.8, recover: 0.9,
-    cost: 4, unlockAt: 100, tint: [1, 1, 1], bob: 1.1,
-  },
-  {
-    slug: 'MagoFuego', name: 'Mago de Fuego', behavior: 'nova', scale: 2.2, radius: 0.55,
-    hp: 90, speed: 4.6, damage: 14, attackRange: 5.0, windup: 1.0, recover: 1.1,
-    cost: 4, unlockAt: 140, tint: [1, 1, 1], bob: 1.0,
-  },
-  {
-    slug: 'Gigante', name: 'Gigante', behavior: 'slam', scale: 4.0, radius: 1.15,
-    hp: 900, speed: 3.0, damage: 26, attackRange: 3.4, windup: 1.1, recover: 1.2,
-    cost: 0, unlockAt: 0, tint: [1, 1, 1], bob: 0.6,
-  },
-  {
-    slug: 'Pekka', name: 'P.E.K.K.A', behavior: 'boss', scale: 5.2, radius: 1.4,
-    hp: 4200, speed: 3.4, damage: 34, attackRange: 4.0, windup: 0.9, recover: 0.8,
-    cost: 0, unlockAt: 0, tint: [1, 1, 1], bob: 0.5,
-  },
-];
-
-export const ENEMY_INDEX: Record<string, number> = Object.fromEntries(ENEMIES.map((e, i) => [e.slug, i]));
+export function enemyStatsFor(def: CharacterDef, elapsed: number): EnemyStats {
+  const w = def.weapon;
+  return {
+    hp: (46 + w.damage * 2.6) * (1 + elapsed / 210),
+    speed: def.speed * 0.6,
+    damage: Math.round(w.damage * 0.45),
+    attackRange: w.reach * 0.95,
+    arc: w.arc,
+    windup: 0.55,
+    recover: 0.55 + w.attackTime * 0.5,
+    radius: 0.55,
+  };
+}

@@ -1,6 +1,6 @@
 /**
- * Pipeline de assets: convierte los GLB crudos de Meshy (../models) y los
- * modelos Clash (../../Juego-clash-/models) en GLBs optimizados para web.
+ * Pipeline de assets: convierte los GLB crudos de Meshy (../models) en
+ * GLBs optimizados para web.
  *
  * Por personaje riggeado:
  *  - fusiona los clips (walk/run/attack/dead/idle/hit) de los GLB separados
@@ -23,7 +23,6 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MODELS = join(HERE, '../../models');
-const CLASH = join(HERE, '../../../Juego-clash-/models');
 const OUT = join(HERE, '../public/assets');
 
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
@@ -35,7 +34,6 @@ const CHARACTERS = [
   '15_gamer_katana', '17_diamond_mace',
 ];
 const STATUES = ['12_devil_trident', '13_banana_katana', '16_ghost_lantern'];
-const ENEMIES = ['Esqueleto', 'Barbaro', 'Arquero', 'Gigante', 'Pekka', 'MontaPuercos', 'MagoFuego'];
 
 /** Copia la animación 0 de srcDoc a dstDoc, retargeteando canales por nombre de nodo. */
 function copyAnimation(srcDoc, dstDoc, name) {
@@ -127,11 +125,10 @@ function tris(doc) {
   return Math.round(t);
 }
 
-const manifest = { characters: {}, statues: {}, enemies: {} };
+const manifest = { characters: {}, statues: {} };
 
 mkdirSync(join(OUT, 'chars'), { recursive: true });
 mkdirSync(join(OUT, 'props'), { recursive: true });
-mkdirSync(join(OUT, 'enemies'), { recursive: true });
 
 for (const slug of CHARACTERS) {
   const dir = join(MODELS, slug);
@@ -177,18 +174,6 @@ for (const slug of STATUES) {
   console.log(`statue ${slug}: tris=${tris(doc)}`);
 }
 
-for (const name of ENEMIES) {
-  const doc = await io.read(join(CLASH, `${name}.glb`));
-  // ya vienen cuantizados: solo recomprimir texturas, sin tocar geometría
-  await doc.transform(
-    prune(),
-    textureCompress({ encoder: sharp, targetFormat: 'webp', resize: [512, 512], quality: 80 }),
-  );
-  const { min, max } = bbox(doc);
-  await io.write(join(OUT, 'enemies', `${name}.glb`), doc);
-  manifest.enemies[name] = { tris: tris(doc), height: Number(max[1].toFixed(3)), minY: Number(min[1].toFixed(3)) };
-  console.log(`enemy ${name}: tris=${tris(doc)} height=${max[1].toFixed(2)}`);
-}
 
 const ts = `// Generado por tools/prepare-assets.mjs — no editar a mano.
 export const ASSET_MANIFEST = ${JSON.stringify(manifest, null, 2)} as const;

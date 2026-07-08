@@ -37,13 +37,13 @@ decorativas de la arena.
 
 ## Enemigos
 
-Hordas continuas con los modelos Clash del repo hermano `Juego-clash-`:
-Esqueletos y Bárbaros (comunes), Arqueros flanqueadores, Montapuercos que
-cargan en línea recta, Magos de Fuego con nova telegráfica, **Gigante**
-(miniboss con slam de área) y **P.E.K.K.A** (boss con 3 fases: combos,
-cargas, novas y invocación de esqueletos). Desde los 2 minutos aparecen
-**élites sombra**: clones oscuros de los personajes jugables con esqueleto
-animado completo.
+**El resto del elenco te caza.** Elegís un personaje y los otros 13 aparecen
+en oleadas continuas como enemigos, cada uno luchando con su propia arma
+(alcance, arco, daño, color y telegraph derivados de su definición) y con su
+esqueleto animado completo en GPU: caminan/corren al perseguirte, lanzan su
+clip de ataque con anticipación telegrafiada y caen con su animación de
+muerte. Con el tiempo aparecen **élites doradas** con más vida. No hay jefes:
+la presión viene del número y de la variedad de armas.
 
 ## Técnica (todo GPU-first)
 

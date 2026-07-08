@@ -61,8 +61,9 @@ export class Game {
     g.gfx.ambientSky.set([0.35, 0.44, 0.6, 0]);
     g.gfx.ambientGround.set([0.17, 0.15, 0.13, 0]);
 
-    await g.enemies.load();
+    // carga el personaje del jugador y los 3 primeros rivales antes de empezar
     await g.ensureChar(0);
+    await Promise.all([g.ensureChar(1), g.ensureChar(6), g.ensureChar(12)]);
     g.player.setCharacter(g.chars.get(CHARACTERS[0].slug)!, false);
 
     // precarga en segundo plano del resto de personajes
@@ -124,14 +125,7 @@ export class Game {
     const asset: CharAsset = { def, type, baked, clips, durations, worldScale };
     this.chars.set(def.slug, asset);
     this.renderer.skinnedTypes.push(type);
-    this.enemies.registerShadow({
-      type,
-      walk: clips.walk, run: clips.run, attack: clips.attack, dead: clips.dead,
-      attackDur: durations.attack,
-      scale: worldScale,
-      yBase: 0,
-      tint: def.weapon.trail,
-    });
+    this.enemies.registerCharacter(idx, asset);
     this.loading.delete(def.slug);
     return asset;
   }
@@ -142,6 +136,7 @@ export class Game {
     if (asset) {
       this.currentChar = idx;
       this.pendingSwitch = -1;
+      this.enemies.playerCharIdx = idx;
       this.player.setCharacter(asset, true);
     } else {
       this.pendingSwitch = idx;
@@ -197,7 +192,7 @@ export class Game {
     // cámara: intensidad por presión de enemigos
     let near = 0;
     this.enemies.forNear(this.player.x, this.player.z, 16, () => near++);
-    const intensity = clamp01(near / 26) * 0.7 + (this.enemies.bossIdx >= 0 ? 0.5 : 0);
+    const intensity = clamp01(near / 26) * 0.8;
     this.camera.update(dt, realDt, this.player.x, this.player.z, this.player.vx, this.player.vz, this.aim.x, this.aim.z, intensity);
     this.camera.writeScene(this.gfx);
     this.gfx.camPosTime[3] = this.time;
