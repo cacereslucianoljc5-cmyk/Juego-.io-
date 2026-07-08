@@ -41,6 +41,8 @@ export class Game {
   private frameNo = 0;
   /** en headless (swiftshader) el raster CPU no aguanta 60fps: render diezmado */
   headless = false;
+  /** false hasta que se elige personaje en el menú: sin spawns ni input */
+  started = false;
 
   static async create(canvas: HTMLCanvasElement, headless: boolean): Promise<Game> {
     const g = new Game();
@@ -61,10 +63,12 @@ export class Game {
     g.gfx.ambientSky.set([0.35, 0.44, 0.6, 0]);
     g.gfx.ambientGround.set([0.17, 0.15, 0.13, 0]);
 
-    // carga el personaje del jugador y los 3 primeros rivales antes de empezar
+    // carga el personaje de la vitrina y los 3 primeros rivales
     await g.ensureChar(0);
     await Promise.all([g.ensureChar(1), g.ensureChar(6), g.ensureChar(12)]);
     g.player.setCharacter(g.chars.get(CHARACTERS[0].slug)!, false);
+    g.player.x = 0;
+    g.player.z = 4;
 
     // precarga en segundo plano del resto de personajes
     (async () => {
@@ -79,6 +83,15 @@ export class Game {
     })();
 
     return g;
+  }
+
+  /** selección del menú inicial: carga (si hace falta), aplica y arranca */
+  async start(idx: number): Promise<void> {
+    const asset = await this.ensureChar(idx);
+    this.currentChar = idx;
+    this.enemies.playerCharIdx = idx;
+    this.player.setCharacter(asset, true);
+    this.started = true;
   }
 
   async ensureChar(idx: number): Promise<CharAsset> {
@@ -179,11 +192,14 @@ export class Game {
     this.camera.cursorToGround(this.gfx, this.input.mouseX, this.input.mouseY, this.aim);
     if (this.input.wheel !== 0) this.camera.zoomWheel(this.input.wheel);
 
-    this.handleSwitching();
-
-    // simulación
-    this.player.update(dt, realDt, this.aim);
-    this.enemies.update(dt);
+    if (this.started) {
+      this.handleSwitching();
+      this.player.update(dt, realDt, this.aim);
+    } else {
+      // modo menú: el personaje de vitrina respira en el centro de la arena
+      this.player.idleUpdate(dt);
+    }
+    this.enemies.update(this.started ? dt : 0);
     this.vfx.update(realDt);
     this.renderer.sprites.update(realDt);
     this.renderer.trails.update(realDt);
@@ -198,7 +214,12 @@ export class Game {
     let near = 0;
     this.enemies.forNear(this.player.x, this.player.z, 16, () => near++);
     const intensity = clamp01(near / 26) * 0.8;
-    this.camera.update(dt, realDt, this.player.x, this.player.z, this.player.vx, this.player.vz, this.aim.x, this.aim.z, intensity);
+    if (this.started) {
+      this.camera.update(dt, realDt, this.player.x, this.player.z, this.player.vx, this.player.vz, this.aim.x, this.aim.z, intensity);
+    } else {
+      // cámara de menú: encuadre fijo sereno sobre el personaje
+      this.camera.update(dt, realDt, this.player.x, this.player.z, 0, 0, this.player.x, this.player.z + 4, 0);
+    }
     this.camera.writeScene(this.gfx);
     this.gfx.camPosTime[3] = this.time;
     this.gfx.playerGlow[0] = this.player.x;

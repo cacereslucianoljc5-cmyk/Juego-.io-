@@ -172,6 +172,13 @@ export class Player {
 
   enemies: Enemies | null = null;
 
+  /** modo menú: solo animación idle, sin input ni combate */
+  idleUpdate(dt: number): void {
+    this.idlePhase += dt;
+    this.switchDissolve = Math.max(0, this.switchDissolve - dt * 3.2);
+    this.updateAnim(dt, 0);
+  }
+
   update(dt: number, realDt: number, aimWorld: { x: number; z: number }): void {
     const asset = this.asset;
     const def = asset.def;

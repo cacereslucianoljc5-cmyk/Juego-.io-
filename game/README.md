@@ -5,8 +5,8 @@ Stars × Brotato) para navegador, renderizada 100% con **WebGPU** a través de
 **[TypeGPU](https://typegpu.com)** — los shaders están escritos en TypeScript
 (`'use gpu'`) y se transpilan a WGSL con `unplugin-typegpu`.
 
-Sin menús, sin HUD, sin audio: solo gameplay y gráficos. Aparecés en la arena
-y el combate empieza.
+Un único menú minimalista al inicio para elegir personaje; después no hay
+HUD ni pausas: solo gameplay y gráficos.
 
 ## Controles
 
