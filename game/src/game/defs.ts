@@ -199,7 +199,7 @@ export function enemyStatsFor(def: CharacterDef, elapsed: number): EnemyStats {
     damage: Math.round(w.damage * 0.45),
     attackRange: w.reach * 0.95,
     arc: w.arc,
-    windup: 0.55,
+    windup: 0.7,
     recover: 0.55 + w.attackTime * 0.5,
     radius: 0.55,
   };

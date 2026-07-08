@@ -65,7 +65,7 @@ export function createTrailSystem(gfx: Gfx): TrailSystem {
     const streak = perlin2d.sample(d.vec2f(u * 5 - time * 7, v * 2.4)) * 0.5 + 0.5;
     const core = std.pow(std.sin(v * 3.14159265), 0.7);
     const fade = (1 - u) * (1 - u);
-    const a = input.data.z * fade * core * (0.45 + streak * 0.8);
+    const a = input.data.z * fade * core * (0.6 + streak * 0.9);
     const edge = std.pow(std.sin(std.clamp(v, 0, 1) * 3.14159265), 4) * fade;
     const rgb = input.col.rgb * (a * (1 + input.data.w)) + d.vec3f(1, 1, 1) * (edge * a * 0.7);
     return d.vec4f(rgb, 0);
@@ -126,7 +126,7 @@ export function createTrailSystem(gfx: Gfx): TrailSystem {
     });
   }
 
-  const TRAIL_LIFE = 0.16;
+  const TRAIL_LIFE = 0.28;
 
   return {
     trails,

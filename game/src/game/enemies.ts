@@ -367,7 +367,7 @@ export class Enemies {
         }
         case ATTACK: {
           const asset = this.charAssets[this.kind[i]]!;
-          const T = def.weapon.attackTime * 1.35; // swing algo más lento: se lee mejor
+          const T = def.weapon.attackTime * 1.75; // swing lento y teatral: se lee el arma
           // paso corto hacia delante (sin embestida: el golpe lo da el arma)
           if (this.stateT[i] < T * 0.2) {
             this.velX[i] = this.aimX[i] * this.sSpeed[i] * 1.15;
@@ -387,8 +387,8 @@ export class Enemies {
             this.renderer.particles.emit({
               x: this.posX[i] + this.aimX[i] * 1.2, y: 1.1, z: this.posZ[i] + this.aimZ[i] * 1.2,
               shape: 0, dirX: this.aimX[i], dirY: 0.05, dirZ: this.aimZ[i], spread: 0.05,
-              count: 1, speedMin: 3, speedMax: 3.5, lifeMin: 0.16, lifeMax: 0.18,
-              size0: 0.8, size1: 1.5, kind: def.weapon.hitKind,
+              count: 1, speedMin: 3, speedMax: 3.5, lifeMin: 0.2, lifeMax: 0.24,
+              size0: 1.2, size1: 2.3, kind: def.weapon.hitKind,
               r0: c[0] * 1.5, g0: c[1] * 1.5, b0: c[2] * 1.5, drag: 2,
             });
           }
@@ -556,7 +556,7 @@ export class Enemies {
           ct = (pre + k * (w0 - pre)) * durs.attack;
           squash = 1 + 0.1 * k; // se estira al armar el golpe
         } else {
-          const swingT = clamp01(t / (def.weapon.attackTime * 1.35));
+          const swingT = clamp01(t / (def.weapon.attackTime * 1.75));
           ct = (w0 + swingT * (w1 - w0)) * durs.attack;
           // trail del arma durante el swing (igual que el jugador)
           if (swingT > 0.04 && swingT < 0.96) {
@@ -576,10 +576,11 @@ export class Enemies {
               const dl = Math.hypot(ddx, ddy, ddz) || 1;
               ddx /= dl; ddy /= dl; ddz /= dl;
               const tr = this.renderer.trails.trails[slot];
-              tr.setColor(w.trail[0], w.trail[1], w.trail[2], w.trailGlow * 0.8);
+              tr.setColor(w.trail[0] * 1.25, w.trail[1] * 1.25, w.trail[2] * 1.25, w.trailGlow * 1.3);
+              const len = w.trailLen * 1.5; // estela más larga para que se lea de lejos
               tr.push(
                 bx, Math.max(by, 0.15), bz,
-                bx + ddx * w.trailLen, Math.max(by + ddy * w.trailLen, 0.2), bz + ddz * w.trailLen,
+                bx + ddx * len, Math.max(by + ddy * len, 0.2), bz + ddz * len,
               );
             }
           }
