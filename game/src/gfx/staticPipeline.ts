@@ -23,10 +23,14 @@ export interface StaticBatch {
   count: number;
   capacity: number;
   castsShadow: boolean;
+  /** marca para subir el mirror CPU al buffer GPU en el próximo frame */
+  dirty: boolean;
 }
 
 export interface StaticPipelines {
   createBatch(mesh: GpuMesh, albedoView: any, capacity: number, castsShadow?: boolean): StaticBatch;
+  /** parte extra de un modelo multi-primitiva: comparte instancias con `owner` */
+  createBatchPart(mesh: GpuMesh, albedoView: any, owner: StaticBatch): StaticBatch;
   uploadBatch(b: StaticBatch): void;
   drawMain(pass: GPURenderPassEncoder, batches: StaticBatch[]): void;
   drawShadow(pass: GPURenderPassEncoder, batches: StaticBatch[]): void;
@@ -109,13 +113,28 @@ export function createStaticPipelines(gfx: Gfx, shading: Shading): StaticPipelin
     return {
       mesh, bindGroup, instanceBuffer,
       raw: new Float32Array(capacity * 24),
-      count: 0, capacity, castsShadow,
+      count: 0, capacity, castsShadow, dirty: false,
+    };
+  };
+
+  const createBatchPart = (mesh: GpuMesh, albedoView: any, owner: StaticBatch): StaticBatch => {
+    const bindGroup = gfx.root.createBindGroup(staticObjLayout, {
+      instances: owner.instanceBuffer,
+      albedo: albedoView,
+    });
+    return {
+      mesh, bindGroup,
+      instanceBuffer: owner.instanceBuffer,
+      raw: owner.raw,
+      count: 0, capacity: owner.capacity, castsShadow: owner.castsShadow,
+      dirty: false, // el owner gestiona la subida
     };
   };
 
   const uploadBatch = (b: StaticBatch): void => {
-    if (b.count > 0) {
+    if (b.dirty && b.count > 0) {
       b.instanceBuffer.write(b.raw.subarray(0, b.count * 24));
+      b.dirty = false;
     }
   };
 
@@ -143,7 +162,7 @@ export function createStaticPipelines(gfx: Gfx, shading: Shading): StaticPipelin
     }
   };
 
-  return { createBatch, uploadBatch, drawMain, drawShadow };
+  return { createBatch, createBatchPart, uploadBatch, drawMain, drawShadow };
 }
 
 /** Escribe una instancia en el mirror CPU (24 floats). Devuelve el offset. */

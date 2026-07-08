@@ -67,7 +67,7 @@ export function makeShading(gfx: Gfx): Shading {
     // especular toon del sol
     const H = std.normalize(L + V);
     const specRaw = std.pow(std.clamp(std.dot(n, H), 0, 1), 42);
-    const spec = std.smoothstep(0.28, 0.42, specRaw) * 0.55 * shadow;
+    const spec = std.smoothstep(0.28, 0.42, specRaw) * 0.32 * shadow;
     // luces puntuales
     let point = d.vec3f();
     const count = d.u32(scene.$.sunColorLights.w);
@@ -81,8 +81,8 @@ export function makeShading(gfx: Gfx): Shading {
       point += pl.colorIntensity.rgb * (fall * ln);
     }
     // rim: aro fresnel con el color del cielo
-    const rim = fresnel(n, V, 3.2) * 0.5;
-    const rimCol = scene.$.ambientSky.rgb * (rim * (0.4 + sunTerm));
+    const rim = fresnel(n, V, 3.6) * 0.28;
+    const rimCol = scene.$.ambientSky.rgb * (rim * (0.35 + sunTerm * 0.65));
     return albedo * (sun + hemi + point) + d.vec3f(spec) * scene.$.sunColorLights.rgb + rimCol + emissive;
   };
 

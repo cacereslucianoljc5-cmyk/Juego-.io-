@@ -22,6 +22,7 @@ export interface BakedCharacter {
   binds: Float32Array;  // inversa de invBind por hueso (para recuperar world)
   jointName: string[];
   handJoint: number;    // índice de hueso de la mano derecha (para trails)
+  handParent: number;   // antebrazo: da la dirección del arma
   rootJoint: number;
 }
 
@@ -75,6 +76,9 @@ export function bakeCharacter(model: GlbModel): BakedCharacter {
   let handJoint = findJoint(/right.*hand|hand.*r\b|RightHand/i);
   if (handJoint < 0) handJoint = findJoint(/hand/i);
   if (handJoint < 0) handJoint = 0;
+  const handParentNode = nodes[skin.joints[handJoint]].parent;
+  let handParent = skin.joints.indexOf(handParentNode);
+  if (handParent < 0) handParent = handJoint;
   let rootJoint = skin.joints.findIndex((n) => nodes[n].parent < 0 || !jointSet.has(nodes[n].parent));
   if (rootJoint < 0) rootJoint = 0;
   const rootNode = skin.joints[rootJoint];
@@ -173,7 +177,7 @@ export function bakeCharacter(model: GlbModel): BakedCharacter {
     mat4.invert(skin.invBind.subarray(j * 16, j * 16 + 16), binds.subarray(j * 16, j * 16 + 16));
   }
 
-  return { boneCount: J, frames, clips, binds, jointName, handJoint, rootJoint };
+  return { boneCount: J, frames, clips, binds, jointName, handJoint, handParent, rootJoint };
 }
 
 const _m0 = new Float32Array(16);

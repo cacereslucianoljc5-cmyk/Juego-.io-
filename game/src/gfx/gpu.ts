@@ -187,6 +187,23 @@ export class Gfx {
     return { vertexBuffer, indexBuffer, indexCount: mesh.indices.length };
   }
 
+  /** Sube una malla estática desde arrays sueltos (pos/nrm/uv + índices). */
+  uploadMeshFrom(positions: Float32Array, normals: Float32Array, uvs: Float32Array, indices: Uint32Array): GpuMesh {
+    const n = positions.length / 3;
+    const verts = new Float32Array(n * 8);
+    for (let i = 0; i < n; i++) {
+      verts[i * 8] = positions[i * 3];
+      verts[i * 8 + 1] = positions[i * 3 + 1];
+      verts[i * 8 + 2] = positions[i * 3 + 2];
+      verts[i * 8 + 3] = normals[i * 3];
+      verts[i * 8 + 4] = normals[i * 3 + 1];
+      verts[i * 8 + 5] = normals[i * 3 + 2];
+      verts[i * 8 + 6] = uvs[i * 2];
+      verts[i * 8 + 7] = uvs[i * 2 + 1];
+    }
+    return this.uploadMesh({ verts, indices });
+  }
+
   /** Sube geometría skinned empaquetada (stride 40B) desde arrays sueltos. */
   uploadSkinnedMesh(
     positions: Float32Array, normals: Float32Array, uvs: Float32Array,

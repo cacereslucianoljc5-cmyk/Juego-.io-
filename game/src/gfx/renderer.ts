@@ -35,6 +35,8 @@ export class Renderer {
   private depthView!: GPUTextureView;
   private shadowView!: GPUTextureView;
   private captureResolve: ((data: ImageData) => void) | null = null;
+  /** true mientras hay un readback en vuelo: no se envía trabajo nuevo */
+  busyCapture = false;
 
   constructor(gfx: Gfx, atlasView: any) {
     this.gfx = gfx;
@@ -65,6 +67,7 @@ export class Renderer {
   }
 
   frame(dt: number, time: number): void {
+    if (this.busyCapture) return;
     const gfx = this.gfx;
     const flags = (globalThis as any).__renderFlags ?? {};
     gfx.uploadScene();
@@ -138,7 +141,12 @@ export class Renderer {
     if (wantsCapture) {
       const resolve = this.captureResolve!;
       this.captureResolve = null;
-      this.post.readCapture().then(resolve);
+      this.busyCapture = true;
+      this.post.readCapture()
+        .then(resolve, (err) => console.error('capture failed:', err))
+        .finally(() => {
+          this.busyCapture = false;
+        });
     }
   }
 }

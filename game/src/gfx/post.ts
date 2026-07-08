@@ -139,8 +139,8 @@ export function createPost(gfx: Gfx): Post {
     // pulso de daño: anillo rojo del borde
     const hurtRing = std.smoothstep(0.5, 1.05, distC * 2) * hurt;
     col = std.mix(col, d.vec3f(0.75, 0.05, 0.05), hurtRing * 0.55);
-    // fade de muerte
-    col = std.mix(col, d.vec3f(lum) * 0.35, deathFade);
+    // fade de muerte: desaturación + oscurecido parcial
+    col = std.mix(col, d.vec3f(lum) * 0.55, deathFade * 0.8);
     // grano sutil
     randf.seed2(input.uv * 991.7 + d.vec2f(std.fract(time * 13.7), std.fract(time * 7.9)));
     col += d.vec3f(randf.sample() - 0.5) * 0.016;
