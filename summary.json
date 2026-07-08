@@ -1,0 +1,353 @@
+[
+  {
+    "slug": "01_knife",
+    "weapon": "knife",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "idle": "ok",
+        "attack": "ok",
+        "hit": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 47,
+    "files": {
+      "mesh": "01_knife_mesh_textured_quad30k.glb",
+      "rigged": "01_knife_rigged.glb",
+      "anim_walk": "01_knife_anim_walk.glb",
+      "anim_run": "01_knife_anim_run.glb",
+      "anim_idle": "01_knife_anim_idle_Idle.glb",
+      "anim_attack": "01_knife_anim_attack_Attack.glb",
+      "anim_hit": "01_knife_anim_hit_Hit_Reaction.glb",
+      "anim_dead": "01_knife_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "04_pirate_cutlass",
+    "weapon": "cutlass",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "04_pirate_cutlass_mesh_textured_quad30k.glb",
+      "rigged": "04_pirate_cutlass_rigged.glb",
+      "anim_walk": "04_pirate_cutlass_anim_walk.glb",
+      "anim_run": "04_pirate_cutlass_anim_run.glb",
+      "anim_attack": "04_pirate_cutlass_anim_attack_Sword_Judgment.glb",
+      "anim_dead": "04_pirate_cutlass_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "02_cowboy_sword",
+    "weapon": "sword/machete",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "02_cowboy_sword_mesh_textured_quad30k.glb",
+      "rigged": "02_cowboy_sword_rigged.glb",
+      "anim_walk": "02_cowboy_sword_anim_walk.glb",
+      "anim_run": "02_cowboy_sword_anim_run.glb",
+      "anim_attack": "02_cowboy_sword_anim_attack_Charged_Slash.glb",
+      "anim_dead": "02_cowboy_sword_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "03_cowboy_pirate_sword",
+    "weapon": "cutlass",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "03_cowboy_pirate_sword_mesh_textured_quad30k.glb",
+      "rigged": "03_cowboy_pirate_sword_rigged.glb",
+      "anim_walk": "03_cowboy_pirate_sword_anim_walk.glb",
+      "anim_run": "03_cowboy_pirate_sword_anim_run.glb",
+      "anim_attack": "03_cowboy_pirate_sword_anim_attack_Left_Slash.glb",
+      "anim_dead": "03_cowboy_pirate_sword_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "05_astronaut_wrench",
+    "weapon": "wrench",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "05_astronaut_wrench_mesh_textured_quad30k.glb",
+      "rigged": "05_astronaut_wrench_rigged.glb",
+      "anim_walk": "05_astronaut_wrench_anim_walk.glb",
+      "anim_run": "05_astronaut_wrench_anim_run.glb",
+      "anim_attack": "05_astronaut_wrench_anim_attack_Attack.glb",
+      "anim_dead": "05_astronaut_wrench_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "07_reaper_scythe",
+    "weapon": "scythe",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "07_reaper_scythe_mesh_textured_quad30k.glb",
+      "rigged": "07_reaper_scythe_rigged.glb",
+      "anim_walk": "07_reaper_scythe_anim_walk.glb",
+      "anim_run": "07_reaper_scythe_anim_run.glb",
+      "anim_attack": "07_reaper_scythe_anim_attack_Reaping_Swing.glb",
+      "anim_dead": "07_reaper_scythe_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "10_ice_sword",
+    "weapon": "ice sword",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "10_ice_sword_mesh_textured_quad30k.glb",
+      "rigged": "10_ice_sword_rigged.glb",
+      "anim_walk": "10_ice_sword_anim_walk.glb",
+      "anim_run": "10_ice_sword_anim_run.glb",
+      "anim_attack": "10_ice_sword_anim_attack_Charged_Slash.glb",
+      "anim_dead": "10_ice_sword_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "09_agent_gun",
+    "weapon": "gun",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "09_agent_gun_mesh_textured_quad30k.glb",
+      "rigged": "09_agent_gun_rigged.glb",
+      "anim_walk": "09_agent_gun_anim_walk.glb",
+      "anim_run": "09_agent_gun_anim_run.glb",
+      "anim_attack": "09_agent_gun_anim_attack_Side_Shot.glb",
+      "anim_dead": "09_agent_gun_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "11_slime_mace",
+    "weapon": "spiked mace",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "11_slime_mace_mesh_textured_quad30k.glb",
+      "rigged": "11_slime_mace_rigged.glb",
+      "anim_walk": "11_slime_mace_anim_walk.glb",
+      "anim_run": "11_slime_mace_anim_run.glb",
+      "anim_attack": "11_slime_mace_anim_attack_Heavy_Hammer_Swing.glb",
+      "anim_dead": "11_slime_mace_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "15_gamer_katana",
+    "weapon": "neon katana",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "15_gamer_katana_mesh_textured_quad30k.glb",
+      "rigged": "15_gamer_katana_rigged.glb",
+      "anim_walk": "15_gamer_katana_anim_walk.glb",
+      "anim_run": "15_gamer_katana_anim_run.glb",
+      "anim_attack": "15_gamer_katana_anim_attack_Double_Combo_Attack.glb",
+      "anim_dead": "15_gamer_katana_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "14_shark_katana",
+    "weapon": "serrated katana",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "14_shark_katana_mesh_textured_quad30k.glb",
+      "rigged": "14_shark_katana_rigged.glb",
+      "anim_walk": "14_shark_katana_anim_walk.glb",
+      "anim_run": "14_shark_katana_anim_run.glb",
+      "anim_attack": "14_shark_katana_anim_attack_Sword_Judgment.glb",
+      "anim_dead": "14_shark_katana_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "17_diamond_mace",
+    "weapon": "spiked mace",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "17_diamond_mace_mesh_textured_quad30k.glb",
+      "rigged": "17_diamond_mace_rigged.glb",
+      "anim_walk": "17_diamond_mace_anim_walk.glb",
+      "anim_run": "17_diamond_mace_anim_run.glb",
+      "anim_attack": "17_diamond_mace_anim_attack_Heavy_Hammer_Swing.glb",
+      "anim_dead": "17_diamond_mace_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "08_king_scepter",
+    "weapon": "scepter/mace",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "08_king_scepter_mesh_textured_quad30k.glb",
+      "rigged": "08_king_scepter_rigged.glb",
+      "anim_walk": "08_king_scepter_anim_walk.glb",
+      "anim_run": "08_king_scepter_anim_run.glb",
+      "anim_attack": "08_king_scepter_anim_attack_Heavy_Hammer_Swing.glb",
+      "anim_dead": "08_king_scepter_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "06_robot_baton",
+    "weapon": "energy baton",
+    "stages": {
+      "mesh": "ok",
+      "rig": "ok",
+      "animations": {
+        "attack": "ok",
+        "dead": "ok"
+      }
+    },
+    "credits": 41,
+    "files": {
+      "mesh": "06_robot_baton_mesh_textured_quad30k.glb",
+      "rigged": "06_robot_baton_rigged.glb",
+      "anim_walk": "06_robot_baton_anim_walk.glb",
+      "anim_run": "06_robot_baton_anim_run.glb",
+      "anim_attack": "06_robot_baton_anim_attack_Double_Combo_Attack.glb",
+      "anim_dead": "06_robot_baton_anim_dead_Dead.glb"
+    },
+    "status": "complete"
+  },
+  {
+    "slug": "12_devil_trident",
+    "weapon": "trident",
+    "stages": {
+      "mesh": "ok"
+    },
+    "credits": 30,
+    "files": {
+      "mesh": "12_devil_trident_mesh_textured_quad30k.glb"
+    },
+    "status": "failed",
+    "error": "POST rigging failed 422: {\"message\":\"Pose estimation failed, please provide a valid model\"}"
+  },
+  {
+    "slug": "13_banana_katana",
+    "weapon": "katana",
+    "stages": {
+      "mesh": "ok"
+    },
+    "credits": 30,
+    "files": {
+      "mesh": "13_banana_katana_mesh_textured_quad30k.glb"
+    },
+    "status": "failed",
+    "error": "POST rigging failed 422: {\"message\":\"Pose estimation failed, please provide a valid model\"}"
+  },
+  {
+    "slug": "16_ghost_lantern",
+    "weapon": "lantern (no weapon)",
+    "stages": {
+      "mesh": "ok"
+    },
+    "credits": 30,
+    "files": {
+      "mesh": "16_ghost_lantern_mesh_textured_quad30k.glb"
+    },
+    "status": "failed",
+    "error": "POST rigging failed 422: {\"message\":\"Pose estimation failed, please provide a valid model\"}"
+  }
+]
