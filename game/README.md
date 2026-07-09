@@ -79,6 +79,12 @@ npm run build      # tsc + vite build → dist/
 npm run assets     # regenera los GLB optimizados desde ../models
 ```
 
+### Cambiar los modelos 3D
+
+Ver **[docs/ASSETS.md](docs/ASSETS.md)** — cómo reemplazar el modelo de un
+personaje, añadir uno nuevo o cambiar una estatua sin tocar el código del
+motor.
+
 ### Verificación headless
 
 Chromium + swiftshader no soporta presentar al canvas (crashea el device),
